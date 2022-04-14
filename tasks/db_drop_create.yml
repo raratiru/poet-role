@@ -1,0 +1,54 @@
+---
+- name: Drop and Create the database
+  block:
+    - name: Get postgresql directory
+      become: True
+      shell: ps aux | grep 'postgres *-D' | sed 's/^.*config_file=//g' | sed 's/postgresql.conf//g'
+      register: postgres_dir
+
+    - name: Make user postgres reachable
+      become: True
+      lineinfile:
+        dest: "{{ postgres_dir.stdout + 'pg_hba.conf' }}"
+        regexp: '^local\s+all\s+postgres\s+peer$'
+        line: "local   all             postgres                              trust"
+        backrefs: yes
+
+    - name: Restart postgresql
+      become: True
+      service:
+        name: postgresql
+        state: restarted
+
+    - name: Remove db
+      become: False
+      become_user: postgres
+      postgresql_db:
+        name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+        login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
+        login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+        state: absent
+
+    - name: Create db
+      become: False
+      become_user: postgres
+      postgresql_db:
+        name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+        login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
+        login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+        state: present
+
+    - name: Revert changes to user postgres
+      become: True
+      lineinfile:
+        dest: "{{ postgres_dir.stdout + 'pg_hba.conf' }}"
+        regexp: '^local\s+all\s+postgres\s+trust$'
+        line: "local   all             postgres                                peer"
+        backrefs: yes
+
+    - name: Restart postgresql
+      become: True
+      service:
+        name: postgresql
+        state: restarted
+        enabled: yes
