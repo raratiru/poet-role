@@ -1,0 +1,17 @@
+---
+- name: Find backup files
+  find:
+    paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/www/backup/database/"
+  register: found_files
+
+- name: Get latest file
+  set_fact:
+    latest_file: "{{ (found_files.files|sort(attribute='mtime')|last).path }}"
+
+- name: Restore the database
+  postgresql_db:
+    name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+    login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
+    login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+    state: restore
+    target: "{{ latest_file }}"

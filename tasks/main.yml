@@ -7,3 +7,6 @@
 
 - import_tasks: db_backup.yml
   tags: [never, db_backup]
+
+- import_tasks: db_restore.yml
+  tags: [never, db_restore]
