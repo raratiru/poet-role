@@ -4,3 +4,6 @@
 
 - import_tasks: db_drop_create.yml
   tags: [never, db_drop_create]
+
+- import_tasks: db_backup.yml
+  tags: [never, db_backup]
