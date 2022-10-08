@@ -12,7 +12,7 @@
   debug:
     msg: "{{ latest_file }}"
 
-- name: Restore the database
+- name: Restore the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
   postgresql_db:
     name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
     login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
