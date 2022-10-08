@@ -6,3 +6,4 @@
     login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
     state: dump
     target: "{{ lookup('env', 'POET_PROJECT_PATH') }}/www/backup/database/{{ lookup('env', 'POET_DATABASE_NAME') }}-{{ lookup('pipe','date +%Y%m%d.%H%M') }}-{{ lookup('env', 'POET_VERSION') }}-sql.gz"
+    dump_extra_args: --no-owner --no-privileges
