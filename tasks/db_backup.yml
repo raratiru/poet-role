@@ -1,5 +1,5 @@
 ---
-- name: Dump the database
+- name: Dump the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
   postgresql_db:
     name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
     login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
