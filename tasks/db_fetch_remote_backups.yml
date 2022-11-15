@@ -1,0 +1,3 @@
+---
+- name: Fetch Remote Database Backups
+  local_action: command rsync -a --delete-delay {{ ansible_ssh_user }}@{{ ansible_default_ipv4.address }}:{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/ {{ lookup('env', 'POET_PROJECT_LOCAL_PATH') }}/cellar/backup/database/

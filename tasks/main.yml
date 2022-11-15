@@ -6,7 +6,10 @@
   tags: [never, db_drop_create]
 
 - import_tasks: db_backup.yml
-  tags: [never, db_backup]
+  tags: [never, db_backup, db_remote_backup]
+
+- import_tasks: db_fetch_remote_backups.yml
+  tags: [never, db_remote_backup]
 
 - import_tasks: db_restore.yml
   tags: [never, db_restore]

@@ -1,7 +1,7 @@
 ---
 - name: Find backup files
   find:
-    paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/www/backup/database/"
+    paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/"
   register: found_files
 
 - name: Get latest file
