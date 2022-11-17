@@ -1,0 +1,3 @@
+---
+- name: Send Local Backups to Remote
+  local_action: command rsync -a {{ lookup('env', 'POET_PROJECT_LOCAL_PATH') }}/cellar/backup/database/ {{ ansible_ssh_user }}@{{ ansible_default_ipv4.address }}:{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/

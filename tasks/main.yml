@@ -11,5 +11,8 @@
 - import_tasks: db_fetch_remote_backups.yml
   tags: [never, db_remote_backup]
 
+- import_tasks: db_send_local_backups.yml
+  tags: [never, db_send_local_remote_restore]
+
 - import_tasks: db_restore.yml
-  tags: [never, db_restore]
+  tags: [never, db_restore, db_send_local_remote_restore]
