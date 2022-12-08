@@ -12,10 +12,29 @@
   debug:
     msg: "{{ latest_file }}"
 
+- name: Unzip the file
+  shell: tar -czf {{ latest_file }}
+
+- name: Find the latest file (the extracted one)
+  find:
+    paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/"
+  register: found_files
+
+- name: Get latest file
+  set_fact:
+    extracted_file: "{{ (found_files.files|sort(attribute='mtime')|last).path }}"
+
+- name: File to restore
+  debug:
+    msg: "{{ extracted_file }}"
+
+# - name: Restore the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+#   postgresql_db:
+#     name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+#     login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
+#     login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+#     state: restore
+#     target: "{{ latest_file }}"
+
 - name: Restore the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-  postgresql_db:
-    name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-    login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
-    login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
-    state: restore
-    target: "{{ latest_file }}"
+  shell: "PGPASSWORD={{ lookup('env', 'POET_DATABASE_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DATABASE_USER') }} -d {{ lookup('env', 'POET_DATABASE_NAME') }} {{ extracted_file }}"
