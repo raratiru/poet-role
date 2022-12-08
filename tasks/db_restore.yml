@@ -2,6 +2,7 @@
 - name: Find backup files
   find:
     paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/"
+    patterns: "*.tar.gz"
   register: found_files
 
 - name: Get latest file
@@ -18,6 +19,7 @@
 - name: Find the latest file (the extracted one)
   find:
     paths: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/"
+    patterns: "*.dump"
   register: found_files
 
 - name: Get latest file
@@ -37,4 +39,9 @@
 #     target: "{{ latest_file }}"
 
 - name: Restore the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
-  shell: "PGPASSWORD={{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }} -d {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }} {{ extracted_file }}"
+  shell: "export PGPASSWORD={{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }} -d {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }} {{ extracted_file }}"
+
+- name: "Delete original file {{ latest_file }}"
+  file:
+    path: "{{ extracted_file }}"
+    state: absent
