@@ -13,7 +13,7 @@
     msg: "{{ latest_file }}"
 
 - name: Unzip the file
-  shell: tar -czf {{ latest_file }}
+  shell: tar -xf {{ latest_file }}
 
 - name: Find the latest file (the extracted one)
   find:
@@ -28,13 +28,13 @@
   debug:
     msg: "{{ extracted_file }}"
 
-# - name: Restore the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+# - name: Restore the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
 #   postgresql_db:
-#     name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-#     login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
-#     login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+#     name: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
+#     login_user: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }}"
+#     login_password: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }}"
 #     state: restore
 #     target: "{{ latest_file }}"
 
-- name: Restore the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-  shell: "PGPASSWORD={{ lookup('env', 'POET_DATABASE_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DATABASE_USER') }} -d {{ lookup('env', 'POET_DATABASE_NAME') }} {{ extracted_file }}"
+- name: Restore the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
+  shell: "PGPASSWORD={{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }} -d {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }} {{ extracted_file }}"

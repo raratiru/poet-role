@@ -7,20 +7,20 @@
     group: "{{ ansible_ssh_user }}"
     mode: 0700
 
-# - name: Dump the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
+# - name: Dump the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
 #   postgresql_db:
-#     name: "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-#     login_user: "{{ lookup('env', 'POET_DATABASE_USER') }}"
-#     login_password: "{{ lookup('env', 'POET_DATABASE_PASSWORD') }}"
+#     name: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
+#     login_user: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }}"
+#     login_password: "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }}"
 #     state: dump
-#     target: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/{{ lookup('env', 'POET_DATABASE_NAME') }}-{{ lookup('pipe','date +%Y%m%d.%H%M') }}-{{ lookup('env', 'POET_VERSION') }}-sql.gz"
+#     target: "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}-{{ lookup('pipe','date +%Y%m%d.%H%M') }}-{{ lookup('env', 'POET_VERSION') }}-sql.gz"
 #     dump_extra_args: --no-owner --no-privileges
 
 - name: Set the name of the dump file
-  set_fact: filename="{{ lookup('env', 'POET_DATABASE_NAME') }}-{{ lookup('pipe','date +%Y%m%d.%H%M') }}-{{ lookup('env', 'POET_VERSION') }}-sql"
+  set_fact: filename="{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}-{{ lookup('pipe','date +%Y%m%d.%H%M') }}-{{ lookup('env', 'POET_VERSION') }}-sql"
 
-- name: Dump the database "{{ lookup('env', 'POET_DATABASE_NAME') }}"
-  shell: "PGPASSWORD={{ lookup('env', 'POET_DATABASE_PASSWORD') }} && pg_dump --compress=9 --no-owner --no-privileges --format=c -U {{ lookup('env', 'POET_DATABASE_USER') }} {{ lookup('env', 'POET_DATABASE_NAME') }} -f {{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/{{ filename }}.dump"
+- name: Dump the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
+  shell: "export PGPASSWORD={{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }} && pg_dump --compress=9 --no-owner --no-privileges --format=c -U {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }} {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }} -f {{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/{{ filename }}.dump"
 
 - name: Find backup files
   find:
@@ -36,9 +36,9 @@
     msg: "{{ latest_file }}"
 
 - name: Zip the dumped file
-  shell: "tar -C {{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/ -czf {{ filename }}.tar.gz ./$(basename -- {{ latest_file }})"
+  shell: "tar -C {{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/ -czf {{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/{{ filename }}.tar.gz ./$(basename -- {{ latest_file }})"
 
-# - name: "Delete original file {{ latest_file }}"
-#   file:
-#     path: "{{ latest_file }}"
-#     state: absent
+- name: "Delete original file {{ latest_file }}"
+  file:
+    path: "{{ latest_file }}"
+    state: absent
