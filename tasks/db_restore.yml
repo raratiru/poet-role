@@ -14,7 +14,7 @@
     msg: "{{ latest_file }}"
 
 - name: Unzip the file
-  shell: tar -xf {{ latest_file }}
+  shell: cd "{{ lookup('env', 'POET_PROJECT_PATH') }}/cellar/backup/database/" && tar -xf {{ latest_file }}
 
 - name: Find the latest file (the extracted one)
   find:
@@ -41,7 +41,7 @@
 - name: Restore the database "{{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }}"
   shell: "export PGPASSWORD={{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_PASSWORD') }} && pg_restore --format=c --no-owner --no-privileges --clean --if-exists -U {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_USER') }} -d {{ lookup('env', 'POET_DJANGO_DATABASE_MAIN_NAME') }} {{ extracted_file }}"
 
-- name: "Delete original file {{ latest_file }}"
+- name: "Delete original file {{ extracted_file }}"
   file:
     path: "{{ extracted_file }}"
     state: absent
